@@ -4,32 +4,30 @@ import '../model/ride/ride.dart';
 
 class RidesService {
   static List<Ride> availableRides = fakeRides; // TODO for now fake data
- 
-  //
-  //  filter the rides starting from given departure location
-  //
-  static List<Ride> _filterByDeparture(Location departure) {
-    return fakeRides.where((ride) {
-      return ride.departureLocation.name == departure.name &&
-          ride.departureLocation.country == departure.country;
+
+  // Filter rides by departure city.
+  static List<Ride> filterByDeparture(Location departure) {
+    return availableRides.where((ride) {
+      return ride.departureLocation == departure;
     }).toList();
   }
 
-  //
-  //  filter the rides starting for the given requested seat number
-  //
-  static List<Ride> _filterBySeatRequested(int requestedSeat) {
-    return fakeRides.where((ride) {
-      return ride.availableSeats == RidePref.requestedSeats;
+  // Filter rides that can satisfy requested seats.
+  static List<Ride> filterBySeatRequested(int requestedSeat) {
+    return availableRides.where((ride) {
+      return ride.availableSeats >= requestedSeat;
     }).toList();
   }
 
-  //
-  //  filter the rides   with several optional criteria (flexible filter options)
-  //
+  // Filter rides with optional criteria.
   static List<Ride> filterBy({Location? departure, int? seatRequested}) {
-    return fakeRides.where((ride){
-      return Ride(departureLocation: departureLocation, departureDate: departureDate, arrivalLocation: arrivalLocation, arrivalDateTime: arrivalDateTime, driver: driver, availableSeats: availableSeats, pricePerSeat: pricePerSeat);
+    return availableRides.where((ride) {
+      final matchDeparture =
+          departure == null || ride.departureLocation == departure;
+      final matchSeat =
+          seatRequested == null || ride.availableSeats >= seatRequested;
+      return matchDeparture && matchSeat;
     }).toList();
   }
 }
+
