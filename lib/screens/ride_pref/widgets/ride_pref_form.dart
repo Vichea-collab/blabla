@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../model/ride/locations.dart';
 import '../../../model/ride_pref/ride_pref.dart';
-import '../../../service/locations_service.dart';
 import '../../../service/ride_prefs_service.dart';
 import '../../../theme/theme.dart';
 import '../../../utils/date_time_util.dart';
 import '../../../widgets/actions/bla_button.dart';
+import '../../../widgets/pickers/location_picker.dart';
 
 ///
 /// A Ride Preference From is a view to select:
@@ -78,6 +78,28 @@ class _RidePrefFormState extends State<RidePrefForm> {
     setState(() => departureDate = pickedDate);
   }
 
+  Future<void> _onSelectDeparture() async {
+    Location? selected = await LocationPicker.show(
+      context,
+      title: 'Leaving from',
+      selectedLocation: departure,
+    );
+    if (selected == null) return;
+
+    setState(() => departure = selected);
+  }
+
+  Future<void> _onSelectArrival() async {
+    Location? selected = await LocationPicker.show(
+      context,
+      title: 'Going to',
+      selectedLocation: arrival,
+    );
+    if (selected == null) return;
+
+    setState(() => arrival = selected);
+  }
+
   void _onSubmit() {
     if (!_canSearch()) return;
 
@@ -116,31 +138,31 @@ class _RidePrefFormState extends State<RidePrefForm> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: BlaSpacings.m),
-        DropdownButtonFormField<Location>(
-          key: const Key('ridePrefForm_departureDropdown'),
-          initialValue: departure,
-          isExpanded: true,
-          decoration: InputDecoration(
-            labelText: 'Leaving from',
-            labelStyle: BlaTextStyles.label.copyWith(
-              color: BlaColors.textLight,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(BlaSpacings.radius),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: BlaSpacings.m,
-            ),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: BlaColors.greyLight),
+            borderRadius: BorderRadius.circular(BlaSpacings.radius),
           ),
-          items: LocationsService.availableLocations.map((location) {
-            return DropdownMenuItem<Location>(
-              value: location,
-              child: Text(location.name),
-            );
-          }).toList(),
-          onChanged: (newDeparture) {
-            setState(() => departure = newDeparture);
-          },
+          child: ListTile(
+            key: const Key('ridePrefForm_departureDropdown'),
+            onTap: _onSelectDeparture,
+            leading: Icon(
+              Icons.radio_button_unchecked,
+              color: BlaColors.iconLight,
+            ),
+            title: Text(
+              departure?.name ?? 'Leaving from',
+              style: BlaTextStyles.body.copyWith(color: BlaColors.textNormal),
+            ),
+            subtitle: departure == null
+                ? null
+                : Text(
+                    departure!.country.name,
+                    style: BlaTextStyles.label.copyWith(
+                      color: BlaColors.textLight,
+                    ),
+                  ),
+          ),
         ),
         const SizedBox(height: BlaSpacings.s),
         Align(
@@ -152,31 +174,31 @@ class _RidePrefFormState extends State<RidePrefForm> {
           ),
         ),
         const SizedBox(height: BlaSpacings.s),
-        DropdownButtonFormField<Location>(
-          key: const Key('ridePrefForm_arrivalDropdown'),
-          initialValue: arrival,
-          isExpanded: true,
-          decoration: InputDecoration(
-            labelText: 'Going to',
-            labelStyle: BlaTextStyles.label.copyWith(
-              color: BlaColors.textLight,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(BlaSpacings.radius),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: BlaSpacings.m,
-            ),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: BlaColors.greyLight),
+            borderRadius: BorderRadius.circular(BlaSpacings.radius),
           ),
-          items: LocationsService.availableLocations.map((location) {
-            return DropdownMenuItem<Location>(
-              value: location,
-              child: Text(location.name),
-            );
-          }).toList(),
-          onChanged: (newArrival) {
-            setState(() => arrival = newArrival);
-          },
+          child: ListTile(
+            key: const Key('ridePrefForm_arrivalDropdown'),
+            onTap: _onSelectArrival,
+            leading: Icon(
+              Icons.radio_button_unchecked,
+              color: BlaColors.iconLight,
+            ),
+            title: Text(
+              arrival?.name ?? 'Going to',
+              style: BlaTextStyles.body.copyWith(color: BlaColors.textNormal),
+            ),
+            subtitle: arrival == null
+                ? null
+                : Text(
+                    arrival!.country.name,
+                    style: BlaTextStyles.label.copyWith(
+                      color: BlaColors.textLight,
+                    ),
+                  ),
+          ),
         ),
         const SizedBox(height: BlaSpacings.m),
         Container(
