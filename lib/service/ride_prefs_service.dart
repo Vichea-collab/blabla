@@ -15,7 +15,7 @@ class RidePrefService {
   static List<RidePref> ridePrefsHistory = fakeRidePrefs;   // TODO for now fake data
 
   static RidePref? currentRidePref;
- 
+
   static bool get hasCurrentRidePref => currentRidePref != null;
-  
+
 }
