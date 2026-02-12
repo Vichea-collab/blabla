@@ -19,34 +19,6 @@ class LocationPicker extends StatefulWidget {
     this.onLocationSelected,
   });
 
-  static Future<Location?> show(
-    BuildContext context, {
-    required String title,
-    Location? selectedLocation,
-    List<Location> locations = LocationsService.availableLocations,
-  }) {
-    return showModalBottomSheet<Location>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(BlaSpacings.radiusLarge),
-        ),
-      ),
-      builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 0.85,
-          child: LocationPicker(
-            title: title,
-            locations: locations,
-            selectedLocation: selectedLocation,
-          ),
-        );
-      },
-    );
-  }
-
   @override
   State<LocationPicker> createState() => _LocationPickerState();
 }
@@ -134,7 +106,7 @@ class _LocationPickerState extends State<LocationPicker> {
                 : ListView.separated(
                     key: const Key('locationPicker_list'),
                     itemCount: filteredLocations.length,
-                    separatorBuilder: (_, __) => const BlaDivider(),
+                    separatorBuilder: (_, _) => const BlaDivider(),
                     itemBuilder: (context, index) {
                       final location = filteredLocations[index];
                       final isSelected = location == widget.selectedLocation;

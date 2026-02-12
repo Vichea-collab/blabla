@@ -79,25 +79,36 @@ class _RidePrefFormState extends State<RidePrefForm> {
   }
 
   Future<void> _onSelectDeparture() async {
-    Location? selected = await LocationPicker.show(
-      context,
+    await _pickLocation(
       title: 'Leaving from',
-      selectedLocation: departure,
+      currentLocation: departure,
+      onPicked: (location) => departure = location,
     );
-    if (selected == null) return;
-
-    setState(() => departure = selected);
   }
 
   Future<void> _onSelectArrival() async {
-    Location? selected = await LocationPicker.show(
-      context,
+    await _pickLocation(
       title: 'Going to',
-      selectedLocation: arrival,
+      currentLocation: arrival,
+      onPicked: (location) => arrival = location,
+    );
+  }
+
+  Future<void> _pickLocation({
+    required String title,
+    required Location? currentLocation,
+    required ValueChanged<Location> onPicked,
+  }) async {
+    Location? selected = await Navigator.of(context).push<Location>(
+      MaterialPageRoute(
+        builder: (_) => Scaffold(
+          body: LocationPicker(title: title, selectedLocation: currentLocation),
+        ),
+      ),
     );
     if (selected == null) return;
 
-    setState(() => arrival = selected);
+    setState(() => onPicked(selected));
   }
 
   void _onSubmit() {
@@ -129,6 +140,35 @@ class _RidePrefFormState extends State<RidePrefForm> {
   // ----------------------------------
   // Build the widgets
   // ----------------------------------
+  Widget _buildLocationField({
+    required Key key,
+    required String placeholder,
+    required Location? location,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: BlaColors.greyLight),
+        borderRadius: BorderRadius.circular(BlaSpacings.radius),
+      ),
+      child: ListTile(
+        key: key,
+        onTap: onTap,
+        leading: Icon(Icons.radio_button_unchecked, color: BlaColors.iconLight),
+        title: Text(
+          location?.name ?? placeholder,
+          style: BlaTextStyles.body.copyWith(color: BlaColors.textNormal),
+        ),
+        subtitle: location == null
+            ? null
+            : Text(
+                location.country.name,
+                style: BlaTextStyles.label.copyWith(color: BlaColors.textLight),
+              ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     VoidCallback? searchButtonAction = _canSearch() ? _onSubmit : null;
@@ -138,31 +178,11 @@ class _RidePrefFormState extends State<RidePrefForm> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: BlaSpacings.m),
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: BlaColors.greyLight),
-            borderRadius: BorderRadius.circular(BlaSpacings.radius),
-          ),
-          child: ListTile(
-            key: const Key('ridePrefForm_departureDropdown'),
-            onTap: _onSelectDeparture,
-            leading: Icon(
-              Icons.radio_button_unchecked,
-              color: BlaColors.iconLight,
-            ),
-            title: Text(
-              departure?.name ?? 'Leaving from',
-              style: BlaTextStyles.body.copyWith(color: BlaColors.textNormal),
-            ),
-            subtitle: departure == null
-                ? null
-                : Text(
-                    departure!.country.name,
-                    style: BlaTextStyles.label.copyWith(
-                      color: BlaColors.textLight,
-                    ),
-                  ),
-          ),
+        _buildLocationField(
+          key: const Key('ridePrefForm_departureDropdown'),
+          placeholder: 'Leaving from',
+          location: departure,
+          onTap: _onSelectDeparture,
         ),
         const SizedBox(height: BlaSpacings.s),
         Align(
@@ -174,31 +194,11 @@ class _RidePrefFormState extends State<RidePrefForm> {
           ),
         ),
         const SizedBox(height: BlaSpacings.s),
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: BlaColors.greyLight),
-            borderRadius: BorderRadius.circular(BlaSpacings.radius),
-          ),
-          child: ListTile(
-            key: const Key('ridePrefForm_arrivalDropdown'),
-            onTap: _onSelectArrival,
-            leading: Icon(
-              Icons.radio_button_unchecked,
-              color: BlaColors.iconLight,
-            ),
-            title: Text(
-              arrival?.name ?? 'Going to',
-              style: BlaTextStyles.body.copyWith(color: BlaColors.textNormal),
-            ),
-            subtitle: arrival == null
-                ? null
-                : Text(
-                    arrival!.country.name,
-                    style: BlaTextStyles.label.copyWith(
-                      color: BlaColors.textLight,
-                    ),
-                  ),
-          ),
+        _buildLocationField(
+          key: const Key('ridePrefForm_arrivalDropdown'),
+          placeholder: 'Going to',
+          location: arrival,
+          onTap: _onSelectArrival,
         ),
         const SizedBox(height: BlaSpacings.m),
         Container(
